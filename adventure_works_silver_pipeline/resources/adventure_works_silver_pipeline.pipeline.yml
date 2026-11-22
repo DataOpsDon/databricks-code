@@ -1,0 +1,14 @@
+resources:
+  pipelines:
+    adventure_works_silver_pipeline:
+      name: Adventure Works Silver Pipeline
+      libraries:
+        - glob:
+            include: ../src/adventure_works_silver_pipeline/transformations/**
+      catalog: edp_silver_dev
+      channel: CURRENT
+      continuous: false
+      photon: true
+      root_path: ../src/adventure_works_silver_pipeline
+      schema: default
+      serverless: true
