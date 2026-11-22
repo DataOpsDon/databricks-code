@@ -18,12 +18,13 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
+  id-token: write # lets the job request a GitHub OIDC token for Databricks federation
   contents: read
 
 env:
   DATABRICKS_HOST: https://adb-7405619318376778.18.azuredatabricks.net
-  DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
-  DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+  DATABRICKS_AUTH_TYPE: github-oidc
+  DATABRICKS_CLIENT_ID: ed5f2993-5240-4e94-9ec8-a2bacf67a6d2 # deploy identity
 
 jobs:
   validate:
@@ -39,7 +40,7 @@ jobs:
   deploy:
     needs: validate
     runs-on: ubuntu-latest
-    environment: prod # add required reviewers on this GitHub environment for manual approval
+    environment: dev # must match the federation policy subject (environment:dev)
     defaults:
       run:
         working-directory: adventure_works_gold_pipeline

@@ -22,6 +22,6 @@ targets:
       # We always use /Users/admin@jonnyd1994hotmail.onmicrosoft.com for all resources to make sure we only have a single copy.
       root_path: /Users/admin@jonnyd1994hotmail.onmicrosoft.com/.bundle/${bundle.name}/${bundle.target}
     run_as:
-      # This runs as admin@jonnyd1994hotmail.onmicrosoft.com in production. We could also use a service principal here,
+      # Runs as the deploy identity in production (application ID),
       # see https://docs.databricks.com/dev-tools/bundles/permissions.html.
-      user_name: admin@jonnyd1994hotmail.onmicrosoft.com
+      service_principal_name: ed5f2993-5240-4e94-9ec8-a2bacf67a6d2
