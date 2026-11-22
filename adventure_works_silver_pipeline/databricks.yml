@@ -13,15 +13,3 @@ targets:
     default: true
     workspace:
       host: https://adb-7405619318376778.18.azuredatabricks.net
-
-  # The 'prod' target, used for production deployment.
-  prod:
-    mode: production
-    workspace:
-      host: https://adb-7405619318376778.18.azuredatabricks.net
-      # We always use /Users/admin@jonnyd1994hotmail.onmicrosoft.com for all resources to make sure we only have a single copy.
-      root_path: /Users/admin@jonnyd1994hotmail.onmicrosoft.com/.bundle/${bundle.name}/${bundle.target}
-    run_as:
-      # Runs as the deploy identity in production (application ID),
-      # see https://docs.databricks.com/dev-tools/bundles/permissions.html.
-      service_principal_name: ed5f2993-5240-4e94-9ec8-a2bacf67a6d2

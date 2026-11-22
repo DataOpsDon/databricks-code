@@ -29,13 +29,14 @@ env:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    environment: dev # must match the federation policy subject (environment:dev)
     defaults:
       run:
         working-directory: adventure_works_silver_pipeline
     steps:
       - uses: actions/checkout@v4
       - uses: databricks/setup-cli@main
-      - run: databricks bundle validate -t prod
+      - run: databricks bundle validate -t dev
 
   deploy:
     needs: validate
@@ -47,7 +48,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: databricks/setup-cli@main
-      - run: databricks bundle deploy -t prod
+      - run: databricks bundle deploy -t dev
       - name: Run pipeline
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_pipeline }}
-        run: databricks bundle run adventure_works_silver_pipeline -t prod
+        run: databricks bundle run adventure_works_silver_pipeline -t dev

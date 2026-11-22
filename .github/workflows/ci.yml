@@ -44,7 +44,7 @@ jobs:
         bundle:
           - adventure_works_silver_pipeline
           - adventure_works_gold_pipeline
-        target: [dev, prod]
+        target: [dev]
     defaults:
       run:
         working-directory: ${{ matrix.bundle }}
