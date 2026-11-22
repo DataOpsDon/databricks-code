@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "adventure_works_silver_pipeline/**"
+      - "adventure_works_gold_pipeline/**"
+      - ".github/workflows/ci.yml"
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  DATABRICKS_HOST: https://adb-7405619318376778.18.azuredatabricks.net
+  DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+  DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+
+jobs:
+  python-checks:
+    name: Python syntax check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      # Transformations import pyspark.pipelines, which only exists on Databricks,
+      # so we only check that every file parses.
+      - run: python -m compileall -q adventure_works_silver_pipeline/src adventure_works_gold_pipeline/src
+
+  validate:
+    name: Validate ${{ matrix.bundle }} (${{ matrix.target }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        bundle:
+          - adventure_works_silver_pipeline
+          - adventure_works_gold_pipeline
+        target: [dev, prod]
+    defaults:
+      run:
+        working-directory: ${{ matrix.bundle }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: databricks/setup-cli@main
+      - run: databricks bundle validate -t ${{ matrix.target }}

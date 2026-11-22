@@ -1,0 +1,52 @@
+name: Deploy silver pipeline
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "adventure_works_silver_pipeline/**"
+      - ".github/workflows/deploy-silver.yml"
+  workflow_dispatch:
+    inputs:
+      run_pipeline:
+        description: "Trigger a pipeline update after deploying"
+        type: boolean
+        default: false
+
+concurrency:
+  group: deploy-silver
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  DATABRICKS_HOST: https://adb-7405619318376778.18.azuredatabricks.net
+  DATABRICKS_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+  DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: adventure_works_silver_pipeline
+    steps:
+      - uses: actions/checkout@v4
+      - uses: databricks/setup-cli@main
+      - run: databricks bundle validate -t prod
+
+  deploy:
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: prod # add required reviewers on this GitHub environment for manual approval
+    defaults:
+      run:
+        working-directory: adventure_works_silver_pipeline
+    steps:
+      - uses: actions/checkout@v4
+      - uses: databricks/setup-cli@main
+      - run: databricks bundle deploy -t prod
+      - name: Run pipeline
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_pipeline }}
+        run: databricks bundle run adventure_works_silver_pipeline -t prod
